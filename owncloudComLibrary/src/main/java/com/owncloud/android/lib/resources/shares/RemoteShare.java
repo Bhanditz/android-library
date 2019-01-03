@@ -32,13 +32,21 @@ import com.owncloud.android.lib.resources.files.FileUtils;
 
 import java.io.Serializable;
 
+
 /**
  * Contains the data of a Share from the Share API
  *
  * @author masensio
  * @author David A. Velasco
  */
-public class OCShare implements Parcelable, Serializable {
+public class RemoteShare implements Parcelable, Serializable {
+
+    /**
+     * Generated - should be refreshed every time the class changes!!
+     */
+    private static final long serialVersionUID = 4124975224281327921L;
+
+    private static final String TAG = RemoteShare.class.getSimpleName();
 
     public static final int DEFAULT_PERMISSION = -1;
     public static final int READ_PERMISSION_FLAG = 1;
@@ -69,26 +77,8 @@ public class OCShare implements Parcelable, Serializable {
     public static final int FEDERATED_PERMISSIONS_FOR_FOLDER_AFTER_OC9 =
             FEDERATED_PERMISSIONS_FOR_FOLDER_UP_TO_OC9 +
                     SHARE_PERMISSION_FLAG;
-    /**
-     * Parcelable Methods
-     */
-    public static final Parcelable.Creator<OCShare> CREATOR = new Parcelable.Creator<OCShare>() {
-        @Override
-        public OCShare createFromParcel(Parcel source) {
-            return new OCShare(source);
-        }
 
-        @Override
-        public OCShare[] newArray(int size) {
-            return new OCShare[size];
-        }
-    };
-    /**
-     * Generated - should be refreshed every time the class changes!!
-     */
-    private static final long serialVersionUID = 4124975224281327921L;
-    private static final String TAG = OCShare.class.getSimpleName();
-    private long mId;
+
     private long mFileSource;
     private long mItemSource;
     private ShareType mShareType;
@@ -105,36 +95,24 @@ public class OCShare implements Parcelable, Serializable {
     private long mRemoteId;
     private String mShareLink;
 
-    public OCShare() {
+    public RemoteShare() {
         super();
         resetData();
     }
 
-    public OCShare(String path) {
+    public RemoteShare(String path) {
         resetData();
         if (path == null || path.length() <= 0 || !path.startsWith(FileUtils.PATH_SEPARATOR)) {
-            Log_OC.e(TAG, "Trying to create a OCShare with a non valid path");
-            throw new IllegalArgumentException("Trying to create a OCShare with a non valid path: " + path);
+            Log_OC.e(TAG, "Trying to create a RemoteShare with a non valid path");
+            throw new IllegalArgumentException("Trying to create a RemoteShare with a non valid path: " + path);
         }
         mPath = path;
-    }
-
-    /// Getters and Setters
-
-    /**
-     * Reconstruct from parcel
-     *
-     * @param source The source parcel
-     */
-    protected OCShare(Parcel source) {
-        readFromParcel(source);
     }
 
     /**
      * Used internally. Reset all file properties
      */
     private void resetData() {
-        mId = -1;
         mFileSource = 0;
         mItemSource = 0;
         mShareType = ShareType.NO_SHARED;
@@ -152,14 +130,7 @@ public class OCShare implements Parcelable, Serializable {
         mName = "";
     }
 
-    public long getId() {
-        return mId;
-    }
-
-    public void setId(long id) {
-        mId = id;
-    }
-
+    /// Getters and Setters
     public long getFileSource() {
         return mFileSource;
     }
@@ -284,9 +255,31 @@ public class OCShare implements Parcelable, Serializable {
         return ShareType.PUBLIC_LINK.equals(mShareType) && mShareWith.length() > 0;
     }
 
-    public void readFromParcel(Parcel source) {
-        mId = source.readLong();
+    /**
+     * Parcelable Methods
+     */
+    public static final Parcelable.Creator<RemoteShare> CREATOR = new Parcelable.Creator<RemoteShare>() {
+        @Override
+        public RemoteShare createFromParcel(Parcel source) {
+            return new RemoteShare(source);
+        }
 
+        @Override
+        public RemoteShare[] newArray(int size) {
+            return new RemoteShare[size];
+        }
+    };
+
+    /**
+     * Reconstruct from parcel
+     *
+     * @param source The source parcel
+     */
+    protected RemoteShare(Parcel source) {
+        readFromParcel(source);
+    }
+
+    public void readFromParcel(Parcel source) {
         mFileSource = source.readLong();
         mItemSource = source.readLong();
         try {
@@ -315,7 +308,6 @@ public class OCShare implements Parcelable, Serializable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeLong(mId);
         dest.writeLong(mFileSource);
         dest.writeLong(mItemSource);
         dest.writeString((mShareType == null) ? "" : mShareType.name());
@@ -332,5 +324,4 @@ public class OCShare implements Parcelable, Serializable {
         dest.writeString(mShareLink);
         dest.writeString(mName);
     }
-
 }
